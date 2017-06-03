@@ -1,0 +1,105 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Hashed Password</title>
+    <meta charset="utf-8">
+    <meta name="author" content="Jihoon Chung">
+    <meta name="keywords" content="Hashed Password Sha3 512">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.css">
+    <style>
+        label    { width: 5em; vertical-align: top; }
+        input    { max-width: 42em; }
+        textarea { max-width: 42em; }
+        .production span { background-color: #ffff66; }
+        .production a { font-style: italic; }
+        input[type=radio] + label { margin-right: 1em; }
+    </style>
+</head>
+
+<body>
+<header>
+  <h1>Hashed Password</h1>
+  <hr>
+  <h2>SHA-3 512 of Password</h2>
+</header>
+
+<p>
+Using same password through different websites are vunerable. Although most websites verificates password using hash, it is impossible for the users to know if hashing is used, or plain text is saved.
+<br>
+<br>
+There are different kinds of password managers that simplifies users to use different passwords but this is also vunerable since its just putting all the eggs in one basket.<br>
+<br>
+<br>
+
+
+ </p>
+
+<form name="f">
+  <fieldset>
+  <ul>
+      <li>
+        <label for="message">Url</label>
+        <input name="url" id="url" class="width-full" value="google.com"></input>
+      </li>
+      <li>
+        <label for="message">Master Password</label>
+        <input name="mp" id="mp" class="width-full"  type="password" value="password"></input>
+      </li>
+    <li>
+      <label for="digest">Hash</label>
+      <input name="digest" id="digest" readonly class="width-full"></input>
+    </li>
+    <li><small><i>Note Hashed password of ‘password’ in 'google.com' should be:
+        <b>lX~|ky!&amp;tkG88</b></i></small></li>
+  </ul>
+  </fieldset>
+</form>
+<p id="error" class="alert"></p>
+
+<script>document.addEventListener('DOMContentLoaded', function(event) { if (ie11) doc.qrySel('#ie11Notice').classList.remove('hide'); })</script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/es6-promise/4.0.5/es6-promise.auto.min.js">/* polyfill es6 promises */</script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/fetch/2.0.2/fetch.min.js">/* polyfill fetch API */</script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js">/* r224/r298 don't work! */</script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.1.3/js.cookie.min.js">/* github.com/js-cookie/js-cookie */</script>
+<script src="http://www.movable-type.co.uk/js/mtl.js">/* MTL utils */</script>
+<script src="http://cdn.rawgit.com/chrisveness/crypto/4e93a4d/sha3.js"></script>
+<script>
+
+    var wordBank = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ`1234567890-=~!@#$%^&*()_+[]\{}|;';
+
+    'use strict';
+    var doc = document; doc.qrySel = doc.querySelector; doc.qrySelAll = doc.querySelectorAll; // shorthand
+
+    document.addEventListener('DOMContentLoaded', function(event) {
+        var getPass = function() {
+            var hash = null;
+            hash = Sha3.hash512(doc.qrySel('#url').value+'-'+doc.qrySel('#mp').value);
+            var result = "";
+            for(i = 0; i <64; i++){
+              if(result.length>12)
+                break;
+
+              number = parseInt('0x'+hash.match(/.{1,2}/g)[i]);
+              if(parseInt(16*16/wordBank.length)*wordBank.length<=number)
+                continue;
+              result+=wordBank[number%wordBank.length];
+            }
+            doc.qrySel('#digest').value = result
+        };
+        doc.qrySel('#url').oninput =getPass;
+        doc.qrySel('#mp').oninput =getPass;
+
+        doc.qrySel('#mp').focus();
+        doc.qrySel('#mp').select();
+        doc.qrySel('#mp').oninput(); // initial hash call
+
+    });
+</script>
+
+<p>code has been from here: https://github.com/chrisveness/crypto</p>
+
+</body>
+</html>
